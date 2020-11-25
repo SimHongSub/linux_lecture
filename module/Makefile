@@ -1,4 +1,4 @@
-obj-m:=my_simple_module.o
+obj-m:=simple_thread_module.o
 
 KERNEL_DIR:=/lib/modules/$(shell uname -r)/build
 PWD:=$(shell pwd)
