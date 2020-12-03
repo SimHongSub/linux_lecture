@@ -1,4 +1,4 @@
-obj-m:=simple_thread_module.o
+obj-m:=mutex.o
 
 KERNEL_DIR:=/lib/modules/$(shell uname -r)/build
 PWD:=$(shell pwd)
