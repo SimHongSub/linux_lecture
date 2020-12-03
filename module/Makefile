@@ -1,4 +1,4 @@
-obj-m:=mutex.o
+obj-m:=semaphore.o
 
 KERNEL_DIR:=/lib/modules/$(shell uname -r)/build
 PWD:=$(shell pwd)

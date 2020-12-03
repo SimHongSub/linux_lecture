@@ -6,6 +6,8 @@
 #include <linux/delay.h>
 
 int test_Value = 0;
+int set_value = 0;
+int swap_value = 0;
 
 int test_thread(void *param){
 
@@ -13,8 +15,13 @@ int test_thread(void *param){
 
 	for(i=0;i<100000;i++){
 		int *temp = (int*)kmalloc(sizeof(int), GFP_KERNEL);
-		test_Value++;
-		//__sync_fetch_and_add(&test_Value, 1);
+		//test_Value++;
+		__sync_fetch_and_add(&test_Value, 1);
+
+		__sync_lock_test_and_set(&set_value, 7890);
+
+		__sync_val_compare_and_swap(&swap_value, 0, 123456);
+
 		kfree(temp);
 	}
 
@@ -37,6 +44,8 @@ int __init simple_thread_module_init(void){
 	mdelay(100);
 
 	printk("test_Value : %d\n", test_Value);
+	printk("set_value : %d\n", set_value);
+	printk("swap_value : %d\n", swap_value);
 
 	printk(KERN_EMERG "Simple Thread Module!\n");
 

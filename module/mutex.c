@@ -19,7 +19,7 @@ struct my_node{
 	int data;
 };
 
-long long insert_time = 0;
+long long insert_time[4];
 long long search_time = 0;
 long long delete_time = 0;
 
@@ -30,7 +30,7 @@ int insert_thread(void *_arg){
 	int startIndex = (*arg) * 25000;
 	int endIndex = ((*arg) + 1) * 25000;
 
-	start = ktime_get();
+	start = ktime_get_ns();
 	for(i=startIndex; i<endIndex; i++){
 		struct my_node *new = (struct my_node*)kmalloc(sizeof(struct my_node), GFP_KERNEL);
 		new->data = i;
@@ -38,9 +38,9 @@ int insert_thread(void *_arg){
 		list_add(&new->list, &my_list);
 		mutex_unlock(&list_mutex);
 	}
-	end = ktime_get();
+	end = ktime_get_ns();
 
-	__sync_fetch_and_add(&insert_time, (long long)ktime_sub(end, start));
+	insert_time[*arg] = (long long)ktime_sub(end, start);
 
 	return 0;
 }
@@ -49,7 +49,7 @@ int search_thread(void *_arg){
 	ktime_t start, end;
 	struct my_node *current_node;
 
-	start = ktime_get();
+	start = ktime_get_ns();
 	mutex_lock(&list_mutex);
 	list_for_each_entry(current_node, &my_list, list){
 		if(current_node->data == 50000){
@@ -57,7 +57,7 @@ int search_thread(void *_arg){
 		}
 	}
 	mutex_unlock(&list_mutex);
-	end = ktime_get();
+	end = ktime_get_ns();
 
 	__sync_fetch_and_add(&search_time, (long long)ktime_sub(end, start));
 
@@ -70,7 +70,7 @@ int delete_thread(void *_arg){
 	struct my_node *tmp;
 	int check = 0;
 
-	start = ktime_get();
+	start = ktime_get_ns();
 	mutex_lock(&list_mutex);
 	list_for_each_entry_safe(current_node, tmp, &my_list, list){
 		if(check > 25000){
@@ -81,7 +81,7 @@ int delete_thread(void *_arg){
 		check++;
 	}
 	mutex_unlock(&list_mutex);
-	end = ktime_get();
+	end = ktime_get_ns();
 
 	__sync_fetch_and_add(&delete_time, (long long)ktime_sub(end, start));
 
@@ -118,10 +118,15 @@ static int __init my_mod_init(void){
 
 	msleep(10000);
 
-	
-	printk("insert time : %llu\n", insert_time);
-	printk("serarch time : %llu\n", search_time);
-	printk("delete time : %llu\n", delete_time);	
+	for(i=0; i<4; i++){
+		if(insert_time[0] < insert_time[i]){
+			insert_time[0] = insert_time[i];
+		}
+	}
+
+	printk("insert time : %llu ns\n", insert_time[0]);
+	printk("serarch time : %llu ns\n", search_time);
+	printk("delete time : %llu ns\n", delete_time);	
 	
 	return 0;
 }
