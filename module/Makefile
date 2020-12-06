@@ -1,4 +1,4 @@
-obj-m:=semaphore.o
+obj-m:=my_linked_list.o
 
 KERNEL_DIR:=/lib/modules/$(shell uname -r)/build
 PWD:=$(shell pwd)
