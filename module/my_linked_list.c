@@ -33,7 +33,7 @@ int insert_thread(void *data){
 	return 0;
 }
 
-void my_insert(struct list_head *_arg){
+void my_insert(struct list_head **_arg){
 	
 	struct list_head *list1 = (struct list_head*)kmalloc(sizeof(struct list_head), GFP_KERNEL);
 	struct list_head *list2 = (struct list_head*)kmalloc(sizeof(struct list_head), GFP_KERNEL);
@@ -41,35 +41,37 @@ void my_insert(struct list_head *_arg){
 	INIT_LIST_HEAD(list1);
 	INIT_LIST_HEAD(list2);
 
-	_arg[0] = *list1;
-	_arg[1] = *list2;
+	_arg[0] = list1;
+	_arg[1] = list2;
 
 	kthread_run(insert_thread, (void*)list1, "insert_thread");
 
 	kthread_run(insert_thread, (void*)list2, "insert_thread");
-
 }
 
 void example(void){
 	
-	struct list_head lists[2];
+	struct list_head* lists[2];
 	struct my_node *current_node;
 
 	my_insert(lists);
 
-	msleep(20000);
+	msleep(10000);
 
-	/*list_for_each_entry(current_node, &lists[0], entry){
+	list_for_each_entry(current_node, lists[0], entry){
+		
 		printk("%d\n", current_node->data);
-	}*/
+	}
 
 	printk("insert time : %lld ns\n", insert_time);
 
 }
 
 int __init my_linked_list_init(void){
-	example();
+	
 	printk("my linked list!\n");
+
+	example();
 
 	return 0;
 }
