@@ -123,6 +123,19 @@ void my_delete(struct my_node **_arg, int data){
 	}
 }
 
+void my_add(struct my_node **_arg, int data){
+	struct my_node* new = (struct my_node*)kmalloc(sizeof(struct my_node), GFP_KERNEL);
+	new->data = data;
+
+	if(_arg[0]->data > _arg[1]->data){
+		list_add(&new->entry, &(_arg[1]->entry));
+		_arg[1]->data++;
+	}else{
+		list_add(&new->entry, &(_arg[0]->entry));
+		_arg[0]->data++;
+	}
+}
+
 void example(void){
 	struct my_node* lists[2];
 
@@ -163,6 +176,13 @@ void example(void){
         }
 
 	printk("Data size : %d\n", lists[0]->data + lists[1]->data);
+
+	printk("---------one element add---------");
+
+	my_add(lists, 3000);
+
+	printk("list1 data size : %d\n", lists[0]->data);
+	printk("list2 data size : %d\n", lists[1]->data);
 }
 
 int __init my_linked_list_init(void){
